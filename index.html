@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Buscador Leyco</title>
+        <style>
+            body { font-family: sans-serif; padding: 20px; }
+            .contenedor { max-width: 500px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+            input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
+            .resultado { margin-top: 20px; padding: 10px; background: #f9f9f9; border-left: 5px solid #2ecc71; }
+            span { font-weight: bold; color: #333; }
+        </style>
+    </head>
+<body>
+
+    <div class="contenedor">
+        <h3>Buscador de Datos</h3>
+        <input type="text" id="busqueda" placeholder="Escribe el nombre de la Columna 1...">
+        <button onclick="buscarFila()">Buscar</button>
+
+        <div id="resultado" class="resultado" style="display:none;">
+            <p><span>Columna 2:</span> <span id="col2"></span></p>
+            <p><span>Columna 3:</span> <span id="col3"></span></p>
+        </div>
+        <p id="error" style="color:red; display:none;">No se encontró el registro.</p>
+    </div>
+
+    <script>
+        // PEGA AQUÍ TU ENLACE DE GOOGLE SHEETS (CSV)
+        const url ='https://docs.google.com/spreadsheets/d/e/2PACX-1vQsq5_Xs_ckw0xTGJsK-NCPFxQ-ApAw4Uvf9MtxgvACMBI5ESqR7-li4JN-ooR6mkiPypvnfuhDMmSd/pub?output=csv';
+
+        async function buscarFila() {
+            const input = document.getElementById('busqueda').value.toLowerCase();
+            const resDiv = document.getElementById('resultado');
+            const errorDiv = document.getElementById('error');
+            
+            try {
+                const respuesta = await fetch(url);
+                const texto = await respuesta.text();
+                
+                // Convertir CSV a Array (filas y columnas)
+                const filas = texto.split('\n').map(fila => fila.split(','));
+                
+                // Buscar la fila donde la columna 1 coincida
+                const filaEncontrada = filas.find(f => f[0].toLowerCase().trim() === input.trim());
+
+                if (filaEncontrada) {
+                    document.getElementById('col2').innerText = filaEncontrada[1];
+                    document.getElementById('col3').innerText = filaEncontrada[2];
+                    resDiv.style.display = 'block';
+                    errorDiv.style.display = 'none';
+                } else {
+                    resDiv.style.display = 'none';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (e) {
+                console.error("Error al obtener datos:", e);
+            }
+        }
+    </script>
+
+</body>
+</html>
